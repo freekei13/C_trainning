@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: freekei <freekei@student.42.fr>            +#+  +:+       +#+         #
+#    By: csamakka <csamakka@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/12/03 00:13:10 by csamakka          #+#    #+#              #
-#    Updated: 2025/12/09 19:53:12 by freekei          ###   ########.fr        #
+#    Updated: 2026/08/29 15:18:58 by csamakka         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ PRINTF = ft_printf/libftprintf.a
 PRINTF_P = ft_printf/
 
 CC = cc
-FLAGS = -Werror -Wextra
+FLAGS = -Werror -Wextra -Wall
 RM = rm -f
 
 all:$(NAME)

@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   map_checker.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: csamakka <csamakka@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/15 15:20:12 by csamakka          #+#    #+#             */
-/*   Updated: 2026/01/20 14:06:13 by csamakka         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "so_long.h"
 
 int	ismap_rectang(char **map)
@@ -82,7 +70,6 @@ int	element_to_count(char **map, char element)
 int	file_path_check(char *file_path)
 {
 	int		len;
-	int		i;
 	char	*filename;
 
 	len = ft_strlen(file_path);
@@ -98,25 +85,25 @@ char	**map_check(char *file_path)
 	char	**map;
 
 	if (file_path_check(file_path) == 0)
-		return (write(2, "Path incorrect\n", 15), NULL);
+		return (ft_printf("Path incorrect\n"), NULL);
 	fd = open(file_path, O_RDONLY);
 	if (fd == -1)
-		return (write(2, "Path incorrect\n", 15), NULL);
+		return (ft_printf("Path incorrect\n"), NULL);
 	map = map_parse(fd);
 	close(fd);
 	if (!map)
-		return (write(2, "Wrong map component\n", 20), NULL);
+		return (ft_printf("Wrong map component\n"), NULL);
 	if (ismap_rectang(map) == 0)
-		return (free_all(map), write(2, "Error: Not rectangular\n", 23), NULL);
+		return (free_all(map), ft_printf("Error: Not rectangular\n"), NULL);
 	if (ismap_wallaround(map) == 0)
-		return (free_all(map), write(2, "Error: Wall\n", 12), NULL);
+		return (free_all(map), ft_printf("Error: Wall\n"), NULL);
 	if (element_to_count(map, 'E') != 1)
-		return (free_all(map), write(2, "Error: Exit\n", 12), NULL);
+		return (free_all(map), ft_printf("Error: Exit\n"), NULL);
 	if (element_to_count(map, 'P') != 1)
-		return (free_all(map), write(2, "Error: Start position\n", 22), NULL);
+		return (free_all(map), ft_printf("Error: Start position\n"), NULL);
 	if (element_to_count(map, 'C') == 0)
-		return (free_all(map), write(2, "Error: Collectible\n", 18), NULL);
+		return (free_all(map), ft_printf("Error: Collectible\n"), NULL);
 	if (isacces(map) == 0)
-		return (free_all(map), write(2, "Error: No access\n", 17), NULL);
+		return (free_all(map), ft_printf("Error: No access\n"), NULL);
 	return (ft_printf("--All check passed!--\n"), map);
 }
