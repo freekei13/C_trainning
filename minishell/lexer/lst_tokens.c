@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   lst_tokens.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: csamakka <csamakka@student.42lausanne.c    +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 18:28:53 by csamakka          #+#    #+#             */
-/*   Updated: 2026/04/12 19:18:19 by csamakka         ###   ########.fr       */
+/*   Updated: 2026/08/01 02:04:24 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ t_token	*new_token(char *value, int type)
 		return (NULL);
 	token->value = ft_strdup(value);
 	token->type = type;
+	token->quoted = 0;
 	token->next = NULL;
 	return (token);
 }
@@ -53,4 +54,18 @@ void	free_tokens(t_token *lst)
 		free(current);
 		current = next;
 	}
+}
+
+// Le mot delimiteur porte l'unique interrupteur qui decide du sort de TOUT le
+// corps du heredoc : delimiteur non quote -> les $ sont expanses, delimiteur
+// quote -> le corps est recopie tel quel. Une seule quote suffit, ou qu'elle
+// soit dans le mot : << 'EOF', << "EOF" et << lim'' sont tous "quotes".
+void	mark_hd_delim(t_token *lst, char *raw)
+{
+	if (!lst)
+		return ;
+	while (lst->next)
+		lst = lst->next;
+	if (ft_strchr(raw, 39) || ft_strchr(raw, 34))
+		lst->quoted = 1;
 }

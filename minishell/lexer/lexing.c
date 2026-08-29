@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 18:28:39 by csamakka          #+#    #+#             */
-/*   Updated: 2026/07/25 23:48:04 by marvin           ###   ########.fr       */
+/*   Updated: 2026/08/04 14:20:10 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,8 @@ void	quotes_status(int *quote)
 
 void	word_end(t_cursor *cur, t_wdata *data)
 {
-	while ((cur->line[data->counter] != ' ' && cur->line[data->counter] != '|'
+	while ((!is_blank(cur->line[data->counter])
+			&& cur->line[data->counter] != '|'
 			&& cur->line[data->counter] != '<'
 			&& cur->line[data->counter] != '>')
 		|| (data->double_q == 1 || data->single_q == 1))
@@ -46,10 +47,16 @@ void	word_token(t_token **tokens, t_cursor *cur, char **env, int ext_status)
 	data.counter = cur->index;
 	word_end(cur, &data);
 	data.word = ft_substr(cur->line, cur->index, data.counter - cur->index);
-	data.word_final = quote_sep(data.word, env, ext_status);
+	if (cur->hd_delim == 1)
+		data.word_final = heredoc_delim(data.word);
+	else
+		data.word_final = quote_sep(data.word, env, ext_status);
 	if (data.word_final != NULL && (data.word_final[0] != '\0'
 			|| ft_strchr(data.word, '\'') || ft_strchr(data.word, '\"')))
-		add_token_back(tokens, new_token(data.word_final, WORD));
+		add_word_tokens(tokens, data.word_final);
+	if (cur->hd_delim == 1)
+		mark_hd_delim(*tokens, data.word);
+	cur->hd_delim = 0;
 	free(data.word);
 	if (data.word_final != NULL)
 		free(data.word_final);
@@ -63,7 +70,10 @@ void	redirec_token(t_token **tokens, char token, t_cursor *cur)
 		if (token == '>')
 			add_token_back(tokens, new_token(">>", APPEND));
 		else if (token == '<')
+		{
 			add_token_back(tokens, new_token("<<", HEREDOC));
+			cur->hd_delim = 1;
+		}
 		cur->index += 2;
 	}
 	else
@@ -84,9 +94,10 @@ t_token	*tokenize(char *line, char **env, int ext_status)
 	tokens = NULL;
 	cur.line = line;
 	cur.index = 0;
+	cur.hd_delim = 0;
 	while (line[cur.index])
 	{
-		if (line[cur.index] == ' ')
+		if (is_blank(line[cur.index]))
 			cur.index++;
 		else if (line[cur.index] == '|')
 		{

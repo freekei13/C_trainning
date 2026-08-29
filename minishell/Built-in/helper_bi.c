@@ -3,61 +3,44 @@
 /*                                                        :::      ::::::::   */
 /*   helper_bi.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
+/*   By: csamakka <csamakka@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/29 10:15:17 by marvin            #+#    #+#             */
-/*   Updated: 2026/07/26 04:24:50 by marvin           ###   ########.fr       */
+/*   Updated: 2026/08/03 13:39:39 by csamakka         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "builtin.h"
 #include "minishell.h"
 
-int	dash_lengh(char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str[i] && str[i] != '/')
-		i++;
-	if (!str[i] || !str[i + 1])
-		return (-1);
-	return (i);
-}
-
-char	*no_dash(char *arg, int x)
-{
-	char	*str;
-	int		i;
-
-	i = -1;
-	if (x != -1)
-	{
-		str = malloc(sizeof(char *) * (x + 1));
-		while (arg[++i] && arg[i] != '/')
-			str[i] = arg[i];
-		str[i] = '\0';
-		return (str);
-	}
-	else
-		return (NULL);
-}
-
 int	is_valid_id(char *s)
 {
 	int	i;
 
 	if (!s || !s[0])
-		return (0);
+		return (1);
+	if (s[0] == '-')
+		return (2);
 	if (!ft_isalpha(s[0]) && s[0] != '_')
-		return (0);
+		return (1);
 	i = 0;
 	while (s[++i] && s[i] != '=')
 	{
+		if (s[i] == '+' && s[i + 1] == '=')
+			break ;
 		if (!ft_isalnum(s[i]) && s[i] != '_')
-			return (0);
+			return (1);
 	}
-	return (1);
+	return (0);
+}
+
+void	option_error(char *bi, char *arg)
+{
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(bi, 2);
+	ft_putstr_fd(": ", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd(": invalid option", 2);
 }
 
 void	id_error(char *bi, char *arg)

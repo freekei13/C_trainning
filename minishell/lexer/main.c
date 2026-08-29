@@ -6,7 +6,7 @@
 /*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 18:29:14 by csamakka          #+#    #+#             */
-/*   Updated: 2026/07/26 01:17:40 by marvin           ###   ########.fr       */
+/*   Updated: 2026/08/01 02:04:00 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,13 +40,25 @@ int	cmd_readline(t_data *data)
 	return (1);
 }
 
-void	exec_proces(t_ast *ast, t_token *tokens, char ***envp, t_data *data)
+int	exec_proces(t_ast *ast, t_token *tokens, char ***envp, t_data *data)
 {
+	t_ast	*err;
+
 	data->root_ast = ast;
 	free_tokens(tokens);
-	executer(ast, envp, data, 0);
+	err = ast_find_error(ast);
+	if (err)
+	{
+		ft_putstr_fd(err->u_data.err.err_message, 2);
+		data->exit_status = err->u_data.err.status_code;
+	}
+	else
+		executer(ast, envp, data, 0);
 	free_ast(ast);
 	ast = NULL;
+	if (err && !isatty(STDIN_FILENO))
+		return (1);
+	return (0);
 }
 
 int	main(int argc, char **argv, char **envi)
@@ -59,7 +71,7 @@ int	main(int argc, char **argv, char **envi)
 	(void)argv;
 	if (argc != 1)
 		return (0);
-	envp = make_env(envi);
+	envp = env_setup(envi);
 	data_init(&data);
 	while (1)
 	{
@@ -69,8 +81,8 @@ int	main(int argc, char **argv, char **envi)
 		tokens = tokenize(data.cmd, envp, data.exit_status);
 		free(data.cmd);
 		ast = parser(tokens);
-		if (ast)
-			exec_proces(ast, tokens, &envp, &data);
+		if (ast && exec_proces(ast, tokens, &envp, &data))
+			break ;
 	}
 	rl_clear_history();
 	if (envp)
